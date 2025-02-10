@@ -1,9 +1,13 @@
+import PageTitle from "@/components/PageTitle";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { useAuth } from "@/context";
+import { Link } from "react-router-dom";
 
 export default function Home() {
+  const { authenticated } = useAuth();
   return (
     <>
+      <PageTitle title="Flagforge" />
       <div className="px-12 py-4 w-full flex flex-col gap-12 max-xs:px-6 max-w-screen-2xl mx-auto">
         <div className="py-8 max-w-screen-lg mx-auto flex flex-col items-center gap-8">
           <div className="flex flex-col gap-5 max-xs:gap-12 max-sm:gap-12">
@@ -22,7 +26,10 @@ export default function Home() {
               fields.
             </p>
           </div>
-          <Link to="/signin" className="max-xs:w-full">
+          <Link
+            to={authenticated ? "/problems" : "/login"}
+            className="max-xs:w-full"
+          >
             <Button
               className="font-bold tracking-tight text-base max-xs:w-full"
               size={"lg"}

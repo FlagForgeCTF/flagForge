@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useGetAProblem } from "@/api/problems";
 
 export default function AProblem() {
+  const { id } = useParams();
+  const { data } = useGetAProblem(id as string);
+
+  console.log(data);
+
   return (
     <>
       <div className="px-12 py-8 max-w-screen-2xl w-full mx-auto">
