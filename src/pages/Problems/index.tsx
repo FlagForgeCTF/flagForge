@@ -30,11 +30,15 @@ export default function Problem() {
           <div className="flex items-center justify-between">
             <p>
               Score:{" "}
-              <span className="text-primary font-bold tracking-tight">0</span>
+              <span className="text-primary font-bold tracking-tight">
+                {data?.data?.score}
+              </span>
             </p>
             <p>
               Question solved:{" "}
-              <span className="text-primary font-bold tracking-tight">0</span>
+              <span className="text-primary font-bold tracking-tight">
+                {data?.data?.questionDone}
+              </span>
             </p>
           </div>
         </div>
@@ -45,7 +49,7 @@ export default function Problem() {
               ? Array.from({ length: 8 }).map((_, index) => (
                   <Skeleton key={index} className="bg-gray-200 w-full h-48" />
                 ))
-              : data?.data?.map(
+              : data?.data?.questions?.map(
                   (
                     question: {
                       _id: number;
@@ -53,13 +57,18 @@ export default function Problem() {
                       points: number;
                       category: string;
                       description: string;
+                      done: boolean;
                     },
                     index: Key
                   ) => (
                     <Link
-                      to={`/problems/${question?._id}`}
+                      to={question?.done ? "#" : `/problems/${question?._id}`}
                       key={index}
-                      className="p-4 border border-gray-300 rounded-lg hover:bg-slate-50 flex flex-col gap-4"
+                      className={`p-4 border border-gray-300 rounded-lg hover:bg-slate-50 flex flex-col gap-4 ${
+                        question.done
+                          ? "border-green-400 cursor-not-allowed bg-gray-100 pointer-events-none grayscale"
+                          : ""
+                      }`}
                     >
                       <div>
                         <div>
@@ -83,7 +92,6 @@ export default function Problem() {
                 )}
           </div>
           <div className="flex items-center justify-end gap-2">
-            {/* <Link to={`${API_URL}/ctf/problems?page=${}`}> */}
             <Button
               className="font-bold"
               variant={"secondary"}
@@ -92,8 +100,6 @@ export default function Problem() {
             >
               Previous
             </Button>
-            {/* </Link> */}
-            {/* <Link to="/"> */}
             <Button
               className="font-bold"
               variant={"secondary"}
@@ -102,7 +108,6 @@ export default function Problem() {
             >
               Next
             </Button>
-            {/* </Link> */}
           </div>
         </div>
       </div>

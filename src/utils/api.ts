@@ -33,11 +33,8 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       const accessToken = Cookies.get("__accessToken_");
-      const refreshToken = Cookies.get("__refreshToken_");
 
-      console.log(document.cookie);
-
-      if (!refreshToken || !accessToken) {
+      if (accessToken !== undefined) {
         if (logoutCallback) {
           logoutCallback();
           localStorage.clear();
@@ -46,11 +43,9 @@ api.interceptors.response.use(
       }
 
       try {
-        await api.get(`${API_URL}${endpoints.auth.rotateToken}`, { withCredentials: true });
+        await api.post(`${API_URL}${endpoints.auth.rotateToken}`, { withCredentials: true });
 
         const newAccessToken = Cookies.get("__accessToken_");
-
-        console.log(newAccessToken);
 
         if (!newAccessToken) {
           throw new Error("Failed to refresh access token");
@@ -97,37 +92,18 @@ export const endpoints = {
   user: {
     login: '/user/login',
     register: '/user/signup',
+    leaderboard: "/user/leaderboard"
   },
   problems: {
     all: (page: number) => `/ctf/problems?page=${page}`,
-    one: (id: string) => `/ctf/problem/${id}`
-  },
-  filter: {
-    static: '/filter',
-    course: '/filter/course',
-  },
-
-  course: { list: "/courses/list", details: (id: string) => `/courses/details/${id}` },
-  search: {
-    query: '/search',
-  },
-  country: {
-    search: '/country/search',
-    list: '/country/list',
-    details: (id: string) => `/country/overview/${id}`,
-  },
-  FAQ: '/faq',
-  university: {
-    search: '/university/search',
-    list: '/university/list',
-    home: '/university/home',
-    details: (id: string) => `/university/details/${id}`,
+    one: (id: string) => `/ctf/problem/${id}`,
+    solve: (id: string) => `/ctf/validateFlag/${id}`
   },
   auth: {
     login: '/login',
     register: '/register',
     logout: '/auth/logout',
-    rotateToken: "/auth/rotateToken",
+    rotateToken: "/user/rotateToken",
   },
   password: {
     changePassword: '/change-password',

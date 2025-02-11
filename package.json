@@ -25,6 +25,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.474.0",
     "react": "^19.0.0",
+    "react-confetti-boom": "^1.1.2",
     "react-dom": "^19.0.0",
     "react-loader-spinner": "^6.1.6",
     "react-router-dom": "^7.1.5",
