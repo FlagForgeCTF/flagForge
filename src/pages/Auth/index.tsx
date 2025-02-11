@@ -13,7 +13,6 @@ export default function Auth() {
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
   const backendUrl = import.meta.env.VITE_API_URL;
-  console.log(backendUrl);
 
   const handleGoogleLogin = async () => {
     window.location.href = `${backendUrl}/auth/google`;
