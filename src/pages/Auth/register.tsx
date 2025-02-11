@@ -13,9 +13,10 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
+  const backendUrl = import.meta.env.VITE_API_URL;
 
   const handleGoogleLogin = async () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   const [formData, setFormData] = useState<{
