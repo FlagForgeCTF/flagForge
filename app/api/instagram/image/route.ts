@@ -11,6 +11,38 @@ const isAllowedHost = (hostname: string) => {
     );
 };
 
+const isAllowedImageUrl = (url: URL) => {
+    return url.protocol === "https:" && isAllowedHost(url.hostname);
+};
+
+const fetchWithValidatedRedirects = async (
+    initialUrl: URL,
+    maxRedirects = 5
+): Promise<Response> => {
+    let currentUrl = initialUrl;
+
+    for (let i = 0; i <= maxRedirects; i++) {
+        if (!isAllowedImageUrl(currentUrl)) {
+            throw new Error("Invalid redirect host");
+        }
+
+        const response = await fetch(currentUrl.toString(), { redirect: "manual" });
+
+        if (response.status >= 300 && response.status < 400) {
+            const location = response.headers.get("location");
+            if (!location) {
+                throw new Error("Redirect missing location");
+            }
+            currentUrl = new URL(location, currentUrl);
+            continue;
+        }
+
+        return response;
+    }
+
+    throw new Error("Too many redirects");
+};
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const src = searchParams.get("src");
@@ -31,7 +63,7 @@ export async function GET(request: Request) {
     }
 
     try {
-        const response = await fetch(url.toString(), { redirect: "follow" });
+        const response = await fetchWithValidatedRedirects(url);
         if (!response.ok) {
             return NextResponse.json({ error: "Failed to fetch image" }, { status: 502 });
         }
