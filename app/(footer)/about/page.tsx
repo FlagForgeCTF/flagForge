@@ -20,7 +20,8 @@ import {
   Search,
   Puzzle,
   TrendingUp,
-  Heart
+  Heart,
+  ArrowRight
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -180,6 +181,132 @@ export default function About() {
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Partner Card */}
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-gradient-to-br from-blue-600/5 to-red-600/5 blur-3xl opacity-50 pointer-events-none" />
+            <div className="relative bg-white/60 dark:bg-white/[0.02] backdrop-blur-3xl border border-white dark:border-white/10 rounded-[2.5rem] lg:rounded-[3.5rem] p-8 lg:p-14 shadow-2xl">
+              <div className="grid lg:grid-cols-[1fr_0.8fr] gap-12 lg:gap-16 items-center">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-red-500">
+                      <BookOpen className="w-6 h-6" />
+                      <h2 className="text-2xl font-black tracking-tighter uppercase dark:text-white">Academic Partnership</h2>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                      Model Institute of Technology (MIT College)
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                      FlagForge is proud to collaborate with <span className="text-red-500 dark:text-red-500 font-bold">Model Institute of Technology (MIT)</span> to host a dedicated cyber security playground. Located in Kamaladi, Kathmandu, MIT College stands as one of the best American Degree Colleges in Nepal. In partnership with the <span className="text-gray-900 dark:text-white font-bold">International American University (IAU), USA</span>, MIT delivers world-class education with flexible pathways and seamless credit transfer opportunities.
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                      Through this dedicated CTF subdomain, students of Bachelor of Information Technology (BIT) and related programs gain practical, hands-on exposure to defensive and offensive cybersecurity techniques, aligning classroom learning with industry-recognized security skills.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 text-red-500">
+                        <Cpu className="w-5 h-5" />
+                        <h4 className="text-lg font-black tracking-tighter uppercase dark:text-white text-sm">Key Programs</h4>
+                      </div>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 font-medium">
+                        <li className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span>Bachelor of Information Technology (BIT)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span>Bachelor of Business Administration (BBA)</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                          <span>Master of Business Administration (MBA)</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 text-red-500">
+                        <Target className="w-5 h-5" />
+                        <h4 className="text-lg font-black tracking-tighter uppercase dark:text-white text-sm">IAU USA Affiliation</h4>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+                        Earn an internationally recognized American degree in Nepal. Benefit from seamless credit transfers to IAU and access top U.S. universities, saving both time and educational costs.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-6 justify-center p-6 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-3xl">
+                  <h4 className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-wider mb-2 text-center lg:text-left">
+                    College Contact & Details
+                  </h4>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-red-500/10 text-red-500 mt-0.5">
+                        <Globe className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400 uppercase font-black">Website</div>
+                        <Link href="https://mitnepal.edu.np" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-red-500 transition-colors">
+                          mitnepal.edu.np
+                        </Link>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-red-500/10 text-red-500 mt-0.5">
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400 uppercase font-black">Location</div>
+                        <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                          Kamaladi, Kathmandu, Nepal
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-red-500/10 text-red-500 mt-0.5">
+                        <Terminal className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400 uppercase font-black">Admissions Info</div>
+                        <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                          01-5901393, 01-5901394
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-lg bg-red-500/10 text-red-500 mt-0.5">
+                        <Info className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400 uppercase font-black">Inquiries</div>
+                        <Link href="mailto:info@mitnepal.edu.np" className="text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-red-500 transition-colors">
+                          info@mitnepal.edu.np
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-100 dark:border-white/5">
+                    <Link
+                      href="https://mitnepal.edu.np/about"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/15 animate-pulse"
+                    >
+                      <span>Explore MIT Nepal</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

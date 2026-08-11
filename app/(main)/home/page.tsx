@@ -250,16 +250,18 @@ const Home = () => {
                         className="rounded-lg shadow-2xl"
                       />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tight drop-shadow-sm transition-colors duration-300">
+                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tight drop-shadow-sm transition-colors duration-300 flex items-center justify-center lg:justify-start">
                       Flag
                       <span className="text-red-500 dark:text-red-500">Forge</span>
+                      <span className="text-xs ml-3 font-black text-red-500 border border-red-500/30 px-2 py-0.5 rounded-md bg-red-500/5 uppercase tracking-wider">
+                        MIT
+                      </span>
                     </h1>
                   </div>
                   <p
                     className={` text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed mb-6 transition-colors duration-300`}
                   >
-                    Master cybersecurity through hands-on CTF challenges and compete
-                    with hackers worldwide
+                    Master cybersecurity through hands-on CTF challenges at Model Institute of Technology (MIT College)
                   </p>
                   <div className="flex items-center justify-center lg:justify-start gap-2">
                     <Star className="h-5 w-5 text-red-500 dark:text-red-500 fill-red-500 dark:fill-red-500" />
@@ -601,6 +603,56 @@ const Home = () => {
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
                   </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* MIT Partner Section */}
+          <div className="mt-8 bg-white/70 dark:bg-white/[0.03] border border-white/60 dark:border-white/10 rounded-[2.5rem] p-8 lg:p-12 shadow-xl backdrop-blur-md relative overflow-hidden transition-all hover:border-red-500/20">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
+            <div className="grid lg:grid-cols-[1.5fr_1fr] gap-8 items-center">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 text-red-600 dark:text-red-400 text-xs font-black uppercase tracking-[0.2em]">
+                  Academic Partner
+                </div>
+                <h2 className="text-3xl font-black tracking-tighter uppercase dark:text-white">
+                  Model Institute of Technology
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                  Welcome to the official FlagForge instance for <strong>Model Institute of Technology (MIT College)</strong>, Kathmandu! This cyber playground is tailored to help students in Bachelor of Information Technology (BIT) and other programs build strong practical skills in cybersecurity.
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  MIT College is one of Nepal's leading American Degree providers, offering BBA, BIT, and MBA degrees in affiliation with <strong>International American University (IAU), USA</strong>. With direct credit transfer opportunities and a focus on hands-on technology labs, MIT prepares students for global tech careers.
+                </p>
+              </div>
+              <div className="p-6 bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-3xl space-y-4">
+                <h4 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wider">
+                  Quick Facts about MIT Nepal
+                </h4>
+                <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span>Located in Kamaladi, Kathmandu, Nepal</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span>U.S. Degrees & Credit Transfers to top U.S. Universities</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span>Affiliated with International American University (IAU), USA</span>
+                  </li>
+                </ul>
+                <div className="pt-2">
+                  <a
+                    href="https://mitnepal.edu.np"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-red-600/10"
+                  >
+                    Visit mitnepal.edu.np
+                  </a>
                 </div>
               </div>
             </div>

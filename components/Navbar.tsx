@@ -159,8 +159,11 @@ const Navbar: React.FC = () => {
                 className="relative h-8 w-8 md:h-10 md:w-10 object-contain"
               />
             </div>
-            <span className="text-lg md:text-xl font-black tracking-tighter text-gray-900 dark:text-white transition-colors">
+            <span className="text-lg md:text-xl font-black tracking-tighter text-gray-900 dark:text-white transition-colors flex items-center">
               FlagForge
+              <span className="text-[10px] ml-2 font-black text-red-500 border border-red-500/30 px-1.5 py-0.5 rounded-md bg-red-500/5 uppercase tracking-wider">
+                MIT
+              </span>
             </span>
           </div>
         </Link>
@@ -312,7 +315,12 @@ const Navbar: React.FC = () => {
               <div className="flex flex-col h-full">
                 <div className="p-8 border-b border-gray-100 dark:border-white/5 flex items-center gap-3">
                   <Image src={logo} alt="logo" height={40} width={40} />
-                  <span className="text-2xl font-black text-gray-950 dark:text-white tracking-tighter">FlagForge</span>
+                  <span className="text-2xl font-black text-gray-950 dark:text-white tracking-tighter flex items-center">
+                    FlagForge
+                    <span className="text-xs ml-2 font-black text-red-500 border border-red-500/30 px-2 py-0.5 rounded-md bg-red-500/5 uppercase tracking-wider">
+                      MIT
+                    </span>
+                  </span>
                 </div>
 
                 <nav className="flex-1 p-6">

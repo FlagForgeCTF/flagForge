@@ -214,21 +214,36 @@ const Hero: React.FC = () => {
           <div className="space-y-8 text-center lg:text-left relative">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 text-red-600 dark:text-red-400 text-xs font-black uppercase tracking-[0.2em]">
               <Activity className="w-3.5 h-3.5" />
-              <span>Platform Online</span>
+              <span>MIT College Partner Subdomain</span>
             </div>
 
             {/* Typography with fixed clipping */}
             <h1 className="relative text-4xl lg:text-6xl xl:text-7xl font-black tracking-tighter leading-[0.9] text-gray-900 dark:text-white z-10">
               WELCOME TO <br />
-              <span className="bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent italic pr-4 py-2 inline-block">FLAGFORGE</span> <br />
-              <span className="text-gray-400 dark:text-gray-600 text-2xl lg:text-4xl block mt-2">CTF PLAYGROUND</span>
+              <span className="bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent italic pr-4 py-2 inline-block uppercase">
+                MIT × FLAGFORGE
+              </span> <br />
+              <span className="text-gray-400 dark:text-gray-600 text-2xl lg:text-4xl block mt-2">
+                MIT CTF PLAYGROUND
+              </span>
             </h1>
 
             <p className="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0 relative z-10">
-              <span className="text-red-500 font-black">FlagForge</span> is a dynamic platform for
-              <span className="text-gray-900 dark:text-white font-bold italic"> Cybersecurity </span>
-              excellence. Sharpen your skills in cryptography, web exploitation, reverse engineering, and more.
+              <span className="text-red-500 font-black">FlagForge</span> is a dynamic platform for{" "}
+              <span className="text-gray-900 dark:text-white font-bold italic">Cybersecurity</span> excellence
+              hosted in partnership with Model Institute of Technology (MIT College).
+              Sharpen your skills in cryptography, web exploitation, reverse engineering, and more.
             </p>
+
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 max-w-xl mx-auto lg:mx-0 backdrop-blur-sm relative z-10 animate-pulse">
+              <div className="flex items-center gap-3">
+                <GraduationCap className="w-5 h-5 text-red-500" />
+                <div className="text-xs text-left text-gray-700 dark:text-gray-300 font-medium">
+                  Official Cybersecurity Playground for <span className="font-bold text-red-500">Model Institute of Technology (MIT)</span>.
+                  Learn more about our <Link href="/about" className="underline hover:text-red-500 font-bold transition-colors">Academic Partnership</Link>.
+                </div>
+              </div>
+            </div>
 
             <div className="flex justify-center lg:justify-start pt-4 relative z-10">
               <Link
