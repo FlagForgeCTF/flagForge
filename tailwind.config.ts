@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
   darkMode: ["class"], // enable class-based dark mode
@@ -14,12 +15,35 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      // Flatter, quieter elevation for a minimal look.
+      boxShadow: {
+        md: "0 1px 3px 0 rgb(15 23 42 / 0.06)",
+        lg: "0 2px 6px -1px rgb(15 23 42 / 0.08)",
+        xl: "0 4px 12px -2px rgb(15 23 42 / 0.08)",
+        "2xl": "0 8px 24px -6px rgb(15 23 42 / 0.12)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Logo palette: slate (anvil), red (flag), amber (sparks). Off-brand hues fold into these site-wide;
+      // green/emerald stay for success and difficulty semantics.
       colors: {
+        gray: colors.slate,
+        neutral: colors.slate,
+        zinc: colors.slate,
+        stone: colors.slate,
+        rose: colors.red,
+        pink: colors.red,
+        orange: colors.amber,
+        yellow: colors.amber,
+        purple: colors.slate,
+        violet: colors.slate,
+        indigo: colors.slate,
+        blue: colors.slate,
+        sky: colors.slate,
+        cyan: colors.slate,
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
