@@ -232,6 +232,14 @@ const AdminDashboard: React.FC = () => {
       onClick: () => router.push('/roles/developers/admins/manage-challenges')
     },
     {
+      title: "Learning Paths",
+      description: "Group challenges into ordered tracks that players unlock step by step.",
+      icon: <TrendingUp className="w-6 h-6 text-white" />,
+      color: "bg-gradient-to-br from-rose-500 to-red-600",
+      path: "/paths",
+      onClick: () => router.push('/roles/developers/admins/paths')
+    },
+    {
       title: "Event Scoreboards",
       description: "Manage CTF event results, winners, and team performance data from competitions.",
       icon: <Trophy className="w-6 h-6 text-white" />,

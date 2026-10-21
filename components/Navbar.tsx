@@ -32,7 +32,8 @@ import {
   ShieldCheck,
   LayoutDashboard,
   ArrowRight,
-  Archive
+  Archive,
+  Route
 } from "lucide-react";
 
 const NavItem = ({ href, tags, onClick, style }: NavbarItems) => {
@@ -325,6 +326,7 @@ const Navbar: React.FC = () => {
                           switch (tag.toLowerCase()) {
                             case "home": return <Home className="w-5 h-5" />;
                             case "problems": return <Terminal className="w-5 h-5" />;
+                            case "paths": return <Route className="w-5 h-5" />;
                             case "leaderboard": return <Trophy className="w-5 h-5" />;
                             case "archives": return <Archive className="w-5 h-5" />;
                             case "learn grc": return <BookText className="w-5 h-5" />;

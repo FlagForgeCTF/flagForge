@@ -12,6 +12,11 @@ export const NavbarData: NavbarItems[] = [
     style: undefined
   },
   {
+    href: "/paths",
+    tags: "Paths",
+    style: undefined
+  },
+  {
     href: "/leaderboard",
     tags: "Leaderboard",
     style: undefined
