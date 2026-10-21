@@ -204,9 +204,7 @@ const useProblems = (
 const StatsSection: React.FC<{
   score: number;
   questionDone: any;
-  showFilterDropdown: boolean;
-  onToggleFilter: () => void;
-}> = ({ score, questionDone, showFilterDropdown, onToggleFilter }) => (
+}> = ({ score, questionDone }) => (
   <div className="w-full rounded-2xl border border-red-100/70 dark:border-white/10 bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl px-4 sm:px-6 py-4 shadow-[0_16px_45px_-30px_rgba(15,23,42,0.6)] flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full">
       <h2 className="text-center text-lg sm:text-xl font-semibold text-gray-700 dark:text-gray-100 tracking-tight transition-colors duration-300">
@@ -224,16 +222,6 @@ const StatsSection: React.FC<{
       </p>
     </div>
 
-    {/* Mobile Filter Button */}
-    <div className="flex gap-2 items-center justify-center text-center sm:hidden font-medium text-gray-600 dark:text-gray-300">
-      <button
-        onClick={onToggleFilter}
-        className="flex items-center gap-2 rounded-full border border-red-100/70 dark:border-white/10 bg-red-50/80 dark:bg-white/10 px-3 py-2 text-base shadow-sm transition-colors duration-300 hover:bg-red-100/80 dark:hover:bg-white/20"
-        aria-label="Toggle filter dropdown"
-      >
-        <IoFilter className="text-xl" />
-      </button>
-    </div>
   </div>
 );
 
@@ -589,7 +577,9 @@ const Page: React.FC = () => {
   const isSearchActive = searchQuery.trim().length > 0;
   const visibleProblems = isSearchActive ? searchResults : problems;
   const shouldShowNoProblems =
-    visibleProblems.length === 0 && !searchLoading;
+    visibleProblems.length === 0 &&
+    !searchLoading &&
+    (isSearchActive || !problemsLoading);
 
   // Handle category filter change
   const handleCategoryChange = useCallback((category: string) => {
@@ -682,8 +672,6 @@ const Page: React.FC = () => {
         <StatsSection
           score={score}
           questionDone={questionDone}
-          showFilterDropdown={showFilterDropdown}
-          onToggleFilter={() => setShowFilterDropdown(!showFilterDropdown)}
         />
       )}
 
@@ -694,6 +682,19 @@ const Page: React.FC = () => {
           onChange={setSearchQuery}
           loading={searchLoading}
         />
+
+        {/* Mobile Filter Button (shown to everyone, not just signed-in users) */}
+        <div className="flex justify-center mt-3 sm:hidden">
+          <button
+            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+            className="flex items-center gap-2 rounded-full border border-red-100/70 dark:border-white/10 bg-red-50/80 dark:bg-white/10 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 shadow-sm transition-colors duration-300 hover:bg-red-100/80 dark:hover:bg-white/20"
+            aria-label="Toggle filter dropdown"
+            aria-expanded={showFilterDropdown}
+          >
+            <IoFilter className="text-lg" />
+            Filter
+          </button>
+        </div>
 
         <DesktopFilter
           categories={categories}

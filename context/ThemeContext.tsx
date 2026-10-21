@@ -13,24 +13,29 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
+  // Stays false until the real theme is read, so the first effect run doesn't
+  // strip the "dark" class the inline script in app/layout.tsx already applied
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem("flagforge-theme") as Theme;
-    if (storedTheme) {
-      setTheme(storedTheme);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-    }
+    // The inline head script already resolved stored/system preference
+    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    setInitialized(true);
   }, []);
 
   useEffect(() => {
+    if (!initialized) return;
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem("flagforge-theme", theme);
-  }, [theme]);
+    try {
+      localStorage.setItem("flagforge-theme", theme);
+    } catch {
+      // Storage unavailable (private mode / blocked); theme still applies
+    }
+  }, [theme, initialized]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));

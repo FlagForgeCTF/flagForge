@@ -11,13 +11,17 @@ export async function GET(req: NextRequest) {
     await connect();
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const page = Math.max(parseInt(searchParams.get("page") || "1", 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "10", 10) || 10, 1), 100);
     const eventName = searchParams.get("eventName");
 
     // Build query - only show active scoreboards
     const query: any = { isActive: true };
-    if (eventName) query.eventName = { $regex: eventName, $options: "i" };
+    if (eventName) {
+      // Escape regex characters to prevent ReDoS/injection
+      const safeEventName = eventName.slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      query.eventName = { $regex: safeEventName, $options: "i" };
+    }
 
     // Calculate skip value for pagination
     const skip = (page - 1) * limit;

@@ -916,7 +916,7 @@ const UploadPage: React.FC = () => {
         </div>
       </div>
       
-      <ConfirmationPopup />
+      {ConfirmationPopup()}
     </div>
   );
 };

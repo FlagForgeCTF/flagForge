@@ -38,6 +38,9 @@ export async function adminMiddleware(request: NextRequest) {
   // console.log("🧭 Admin Middleware Check:", { ... });
 
   if (!token) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const url = new URL('/authentication', request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);

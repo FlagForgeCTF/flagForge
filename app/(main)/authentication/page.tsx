@@ -15,6 +15,16 @@ const AuthPage = () => {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const { data: session, status: sessionStatus } = useSession();
 
+  // If the user backs out of Google OAuth, the page may be restored from the
+  // back/forward cache with the button still stuck on "Signing In..."
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setIsSigningIn(false);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
   const getErrorMessage = (errorType: string) => {
     switch (errorType) {
       case "OAuthSignin":

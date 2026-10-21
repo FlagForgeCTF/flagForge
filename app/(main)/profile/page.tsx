@@ -21,7 +21,8 @@ import {
   Lock,
   Terminal,
   Target,
-  ExternalLink
+  ExternalLink,
+  X,
 } from "lucide-react";
 import Newbie from "../../../public/badges/0x1.png";
 import Scout from "../../../public/badges/0x2.png";
@@ -157,6 +158,32 @@ const DIFFICULTY_CONFIG: {
     darkBg: "dark:bg-purple-900/30",
     darkBorder: "dark:border-purple-700",
   },
+};
+
+// Defined at module level (not inside ProfilePage) so its error state isn't
+// reset by a remount on every parent render
+const ProfileImage = ({ imageSrc, displayName }: { imageSrc: any; displayName: string }) => {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className="relative group">
+      <div className="absolute -inset-4 bg-gradient-to-br from-red-600 to-orange-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
+      <div className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-[#0f0f0f] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-2">
+        <Image
+          src={(!hasError && imageSrc) ? imageSrc : Flagforge}
+          alt={`${displayName} Profile Picture`}
+          fill
+          className="object-cover"
+          unoptimized
+          priority
+          onError={() => setHasError(true)}
+        />
+      </div>
+      <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#111] p-3 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 transform group-hover:scale-110 transition-transform duration-500 z-20">
+        <Shield className="w-8 h-8 text-red-600" />
+      </div>
+    </div>
+  );
 };
 
 const ProfilePage = () => {
@@ -467,14 +494,12 @@ const ProfilePage = () => {
       const loadData = async () => {
         await fetchProfileData();
         await fetchCompletedProblems();
-        await fetchCreatedRooms();
         setLoading(false);
       };
       loadData();
       interval = setInterval(() => {
         fetchProfileData();
         if (activeTab === "completed") fetchCompletedProblems();
-        else if (activeTab === "created") fetchCreatedRooms();
       }, 30000);
     }
     return () => {
@@ -508,32 +533,6 @@ const ProfilePage = () => {
   }, [roomsCurrentPage, activeTab, session?.user?.email, fetchCreatedRooms]);
 
   // Components
-  const ProfileImage = () => {
-    const imageSrc = getImageSrc();
-    const displayName = profileData?.name || session?.user?.name || "User";
-    const [hasError, setHasError] = useState(false);
-
-    return (
-      <div className="relative group">
-        <div className="absolute -inset-4 bg-gradient-to-br from-red-600 to-orange-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
-        <div className="relative w-32 h-32 lg:w-40 lg:h-40 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-[#0f0f0f] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02] group-hover:rotate-2">
-          <Image
-            src={(!hasError && imageSrc) ? imageSrc : Flagforge}
-            alt={`${displayName} Profile Picture`}
-            fill
-            className="object-cover"
-            unoptimized
-            priority
-            onError={() => setHasError(true)}
-          />
-        </div>
-        <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#111] p-3 rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 transform group-hover:scale-110 transition-transform duration-500 z-20">
-          <Shield className="w-8 h-8 text-red-600" />
-        </div>
-      </div>
-    );
-  };
-
   const CustomBadgeDisplay = () => {
     if (!profileData?.customBadges || profileData.customBadges.length === 0) return null;
 
@@ -657,7 +656,7 @@ const ProfilePage = () => {
         {[
           { id: "completed", label: "Completed", icon: CheckCircle, count: totalCompletedProblems },
           { id: "badges", label: "Badges", icon: Award, count: null },
-          { id: "created", label: "Rooms", icon: Star, count: totalCreatedRooms },
+          // "Rooms" tab hidden until an /api/rooms/created endpoint exists
         ].map((tab) => (
           <button
             key={tab.id}
@@ -676,8 +675,10 @@ const ProfilePage = () => {
   );
 
   // Render conditions
-  if (loading || sessionStatus === "loading") return <Loading />;
+  // Check auth first: `loading` only clears once a session exists, so a
+  // logged-out visitor would otherwise see the spinner forever
   if (sessionStatus === "unauthenticated") return <AuthError />;
+  if (loading || sessionStatus === "loading") return <Loading />;
 
   if (error) {
     return (
@@ -723,7 +724,10 @@ const ProfilePage = () => {
 
             {/* Avatar Column */}
             <div className="relative group">
-              <ProfileImage />
+              <ProfileImage
+                imageSrc={getImageSrc()}
+                displayName={profileData?.name || session?.user?.name || "User"}
+              />
             </div>
 
             {/* Info Column */}
@@ -772,7 +776,7 @@ const ProfilePage = () => {
                   </h4>
                 </div>
 
-                <BadgeTooltip />
+                {BadgeTooltip()}
               </div>
             </div>
           </div>
@@ -816,9 +820,9 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          <HeroStats />
+          {HeroStats()}
 
-          <CustomBadgeDisplay />
+          {CustomBadgeDisplay()}
         </div>
       </section>
 
@@ -827,7 +831,7 @@ const ProfilePage = () => {
         <div className="w-[92%] lg:w-[80%] mx-auto">
 
           {/* Prestigious Tab Header */}
-          <TabNavigation />
+          {TabNavigation()}
 
           {/* Tab Content Panels */}
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -999,7 +1003,7 @@ const ProfilePage = () => {
                                 height={96}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                  e.currentTarget.src = '/api/placeholder/96/96';
+                                  e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                                 }}
                               />
                             </div>
@@ -1168,7 +1172,7 @@ const ProfilePage = () => {
             className="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity animate-in fade-in"
             onClick={() => setShowShareModal(false)}
           />
-          <div className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-white/10 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.5)] overflow-hidden scale-95 animate-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto bg-white dark:bg-[#0a0a0a] border border-gray-100 dark:border-white/10 rounded-[2.5rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.5)] scale-95 animate-in zoom-in-95 duration-200">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -1179,9 +1183,10 @@ const ProfilePage = () => {
                 </div>
                 <button
                   onClick={() => setShowShareModal(false)}
+                  aria-label="Close"
                   className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
                 >
-                  <Shield className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-gray-400" />
                 </button>
               </div>
 

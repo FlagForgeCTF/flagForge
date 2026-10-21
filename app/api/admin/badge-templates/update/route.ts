@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
 import connect from "@/utils/db";
 import BadgeTemplate from "@/models/badgeTemplateSchema";
 import mongoose from "mongoose";
@@ -7,6 +8,9 @@ export const runtime = "nodejs";
 
 export async function PUT(request: NextRequest) {
   try {
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     await connect();
 
     const body = await request.json();

@@ -44,9 +44,18 @@ function validateUserImage(userImage: any): string | null {
   return userImage;
 }
 
-function generateBadgeSVG(userData: any, userImage: string | null): string {
-  const { name, totalScore, rank, level, completedQuestions, customBadges } =
+// Escape text/attribute values interpolated into the SVG markup
+function escapeXml(value: string): string {
+  return value.replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!
+  );
+}
+
+function generateBadgeSVG(userData: any, rawUserImage: string | null): string {
+  const { totalScore, rank, level, completedQuestions, customBadges } =
     userData;
+  const name = escapeXml(String(userData.name ?? ""));
+  const userImage = rawUserImage ? escapeXml(rawUserImage) : null;
   const badgeColor = getBadgeColor(totalScore);
   const specialBadgeCount = customBadges?.length || 0;
 
@@ -119,11 +128,13 @@ export async function GET(
     // Find user by name (case-insensitive, trimmed, partial match safe)
     const usernameWithSpaces = username.replace(/-/g, " ");
 
-    // Find user by name (case-insensitive, trimmed, partial match safe)
+    // Exact, case-insensitive match. Escape regex characters to prevent
+    // ReDoS/injection and anchor so "a" doesn't match any name containing "a".
+    const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const user = await UserSchema.findOne({
       $or: [
-        { name: { $regex: username.trim(), $options: "i" } },
-        { name: { $regex: usernameWithSpaces.trim(), $options: "i" } },
+        { name: { $regex: new RegExp(`^${escapeRegex(username.trim())}$`, "i") } },
+        { name: { $regex: new RegExp(`^${escapeRegex(usernameWithSpaces.trim())}$`, "i") } },
       ],
     }).select("name image totalScore customBadges createdAt");
 
@@ -161,6 +172,9 @@ export async function GET(
       headers: {
         "Content-Type": "image/svg+xml",
         "Cache-Control": "public, max-age=300, s-maxage=300",
+        // Defense in depth: never execute script if the SVG is opened directly
+        "Content-Security-Policy": "default-src 'none'; img-src * data:; style-src 'unsafe-inline'",
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (error) {

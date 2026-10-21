@@ -335,7 +335,7 @@ const PublicUserPage = () => {
               <div className="flex-grow text-center lg:text-left space-y-8">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
                   <div className="space-y-4">
-                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] lg:leading-[0.9] text-gray-900 dark:text-white">
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] lg:leading-[0.9] text-gray-900 dark:text-white break-words">
                       {profileData.name}
                     </h1>
                     <p className="text-lg lg:text-xl font-bold text-red-600 dark:text-red-500">
@@ -564,7 +564,7 @@ const PublicUserPage = () => {
                                     height={96}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
-                                      e.currentTarget.src = '/api/placeholder/80/80';
+                                      e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                                     }}
                                   />
                                 </div>

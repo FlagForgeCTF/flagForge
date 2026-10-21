@@ -197,7 +197,7 @@ export default function GRCLessonPage() {
       {/* Sidebar overlay (mobile) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -216,7 +216,7 @@ export default function GRCLessonPage() {
           {/* Toggle sidebar button */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 dark:bg-white/[0.06] border border-white/60 dark:border-white/10 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-white/10 transition-all flex-shrink-0"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 dark:bg-white/[0.06] border border-white/60 dark:border-white/10 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-white/10 transition-all flex-shrink-0 lg:hidden"
           >
             <List className="w-4 h-4" /> Contents
           </button>
@@ -225,7 +225,7 @@ export default function GRCLessonPage() {
         <div className="flex gap-8 py-10">
           {/* ── Desktop sidebar ── */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24 bg-white/70 dark:bg-white/[0.04] border border-white/60 dark:border-white/10 rounded-2xl overflow-hidden max-h-[calc(100vh-8rem)]">
+            <div className="sticky top-24 bg-white/70 dark:bg-white/[0.04] border border-white/60 dark:border-white/10 rounded-2xl overflow-y-auto max-h-[calc(100vh-8rem)]">
               <LessonSidebar
                 mod={mod}
                 currentTopicId={topicId}

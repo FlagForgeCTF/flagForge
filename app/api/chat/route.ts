@@ -7,6 +7,7 @@ import type { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import mongoose from "mongoose";
+import UserHintModel from "@/models/userHintSchema";
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "YOUR_KEY_HERE";
 
@@ -67,7 +68,24 @@ function calculateChatHintPenalty(previousHints: number): number {
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, challengeId, userId, hintLevel } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ reply: "Invalid request." }, { status: 400 });
+    }
+    const { message, challengeId } = body ?? {};
+    const hintLevel =
+      typeof body?.hintLevel === "string" ? body.hintLevel.slice(0, 20) : "chat";
+
+    if (
+      typeof message !== "string" ||
+      !message.trim() ||
+      message.length > 2000 ||
+      !mongoose.isValidObjectId(challengeId)
+    ) {
+      return NextResponse.json({ reply: "Invalid request." }, { status: 400 });
+    }
 
     // Get user session
     const session = await getServerSession(authOptions);
@@ -136,10 +154,19 @@ export async function POST(req: NextRequest) {
       warningMessage = `\n\n⚠️ **Chat Hint Used**: ${pointsToDeduct} points have been deducted from your score. You've used ${chatHint.hintRequests.length + 1} chat hint(s) for this challenge.`;
     }
 
-    // Combine challenge data & hints
-    const hints = question.hints
-      .map((h: any, i: number) => `Hint ${i + 1}: ${h.text}`)
-      .join("\n");
+    // Only give the assistant hints the user has already unlocked (and paid
+    // for); otherwise locked hint text can be extracted from the prompt for free
+    const userHint = await UserHintModel.findOne({
+      userId: user._id,
+      questionId: question._id,
+    });
+    const unlockedIndices: number[] = userHint?.usedHints ?? [];
+    const hints =
+      (question.hints || [])
+        .map((h: any, i: number) => ({ text: h?.text, i }))
+        .filter((h: any) => h.text && unlockedIndices.includes(h.i))
+        .map((h: any) => `Hint ${h.i + 1}: ${h.text}`)
+        .join("\n") || "None unlocked yet.";
 
     // Construct context
     const systemPrompt = `
@@ -196,20 +223,23 @@ Respond in a helpful, encouraging tone.
       chatHint.hintRequests.push({
         timestamp: new Date(),
         message: message,
-        hintLevel: hintLevel || "chat",
+        hintLevel,
         pointsDeducted: pointsToDeduct,
       });
       chatHint.totalPointsDeducted += pointsToDeduct;
       chatHint.updatedAt = new Date();
       await chatHint.save();
 
-      // Deduct points from user's total score ensuring it doesn't go below 0
-      const currentScore = user.totalScore || 0;
-      const newScore = Math.max(0, currentScore - pointsToDeduct);
-
-      await userSchema.findByIdAndUpdate(user._id, {
-        totalScore: newScore,
-      });
+      // Atomically deduct points, ensuring the score doesn't go below 0
+      await userSchema.findByIdAndUpdate(user._id, [
+        {
+          $set: {
+            totalScore: {
+              $max: [0, { $subtract: [{ $ifNull: ["$totalScore", 0] }, pointsToDeduct] }],
+            },
+          },
+        },
+      ]);
 
       // Add warning to reply
       reply += warningMessage;

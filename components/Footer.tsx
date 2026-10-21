@@ -60,9 +60,9 @@ export default function Footer() {
 
           {/* Left: Brand Identity */}
           <div className="flex flex-col items-center lg:items-start gap-4">
-            <Link href="/" className="group flex items-center gap-3 transition-transform hover:scale-[1.02] active:scale-95 outline-none">
+            <Link href="/" className="group flex items-center gap-3 outline-none">
               <div className="relative">
-                <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* logo */}
                 <Image
                   src={logo}
                   alt="FlagForge Logo"
@@ -71,7 +71,7 @@ export default function Footer() {
                   className="relative h-8 w-8 md:h-10 md:w-10 object-contain transition-all duration-500 group-hover:rotate-6"
                 />
               </div>
-              <span className="text-lg md:text-xl font-black tracking-tighter text-gray-950 dark:text-white">
+              <span className="text-lg md:text-xl font-bold tracking-tight text-gray-950 dark:text-white">
                 FlagForge
               </span>
             </Link>
@@ -82,7 +82,7 @@ export default function Footer() {
 
           {/* Center: Connect Section */}
           <div className="flex flex-col items-center gap-4">
-            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-600">
+            <span className="text-sm text-gray-500">
               CONNECT
             </span>
             <div className="flex items-center gap-3">
@@ -109,7 +109,7 @@ export default function Footer() {
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-500 transition-colors uppercase tracking-tight relative group/link"
+                      className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors relative group/link"
                     >
                       {link.name}
                       <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-red-600 transition-all duration-300 group-hover/link:w-full" />
@@ -124,18 +124,18 @@ export default function Footer() {
 
         {/* Global Footer Bottom */}
         <div className="mt-12 pt-8 border-t border-gray-100 dark:border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5 text-[10px] md:text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
+          <div className="flex items-center gap-2.5 text-xs text-gray-500 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
             © {new Date().getFullYear()} FLAGFORGE. ALL RIGHTS RESERVED.
           </div>
 
-          <div className="flex items-center gap-1.5 text-[10px] md:text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest whitespace-nowrap">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 whitespace-nowrap">
             <span>MAINTAINED BY</span>
             <Link
               href="https://www.linkedin.com/company/shyenasec/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-red-600 font-black hover:text-red-500 transition-colors ml-0.5"
+              className="text-gray-700 dark:text-gray-300 font-medium hover:underline transition-colors ml-0.5"
             >
               SHYENA
             </Link>

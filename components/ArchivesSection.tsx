@@ -109,15 +109,9 @@ export default function ArchivesSection() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* No per-archive route exists; the archives page lists them all */}
               <Link
-                href={`/archives/${archive._id}`}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-              >
-                Explore Archive
-                <ExternalLink className="h-3 w-3" />
-              </Link>
-              <Link
-                href={`/archives/${archive._id}/challenges`}
+                href="/archives"
                 className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors"
               >
                 View Challenges

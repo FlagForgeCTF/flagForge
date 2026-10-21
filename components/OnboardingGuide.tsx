@@ -269,7 +269,7 @@ const OnboardingGuide: React.FC = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="sticky top-0 z-10 transition-colors duration-300 backdrop-blur-xl">
+            <div className="sticky top-16 md:top-20 z-10 transition-colors duration-300 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 sm:py-6">
                     <div className="flex gap-2 overflow-x-auto rounded-2xl sm:rounded-full bg-white/80 dark:bg-white/[0.04] border border-white/60 dark:border-white/10 p-1.5 sm:p-2 shadow-lg">
                         {[

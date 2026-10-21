@@ -190,6 +190,9 @@ export default function BlogsPage() {
                       src={post.thumbnail}
                       alt={post.title}
                       fill
+                      sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
+                      // Notion thumbnails can be hosted anywhere, not just remotePatterns hosts
+                      unoptimized
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>

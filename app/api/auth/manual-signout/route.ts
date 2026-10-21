@@ -26,6 +26,9 @@ export async function POST(request: NextRequest) {
         expiresAt,
         token.sub // userId (optional)
       );
+      if (typeof token.jti === 'string') {
+        await TokenBlacklistService.revokeJti(token.jti, expiresAt, token.sub);
+      }
       
       console.log('✅ Token blacklisted during manual signout:', {
         userId: token.sub,

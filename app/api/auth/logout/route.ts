@@ -31,6 +31,9 @@ export async function POST(request: NextRequest) {
           expiryDate,
           token.sub // user ID
         );
+        if (typeof token.jti === 'string') {
+          await TokenBlacklistService.revokeJti(token.jti, expiryDate, token.sub);
+        }
         
         console.log(`✅ Token blacklisted for user: ${session?.user?.email || 'unknown'}`);
         console.log(`   Expires at: ${expiryDate.toISOString()}`);

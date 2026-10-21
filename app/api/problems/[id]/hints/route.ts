@@ -6,30 +6,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import userSchema from "@/models/userSchema";
 import UserQuestionModel from "@/models/userQuestionSchema";
+import UserHintModel from "@/models/userHintSchema";
+import mongoose from "mongoose";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Model for tracking used hints per user
-import mongoose from "mongoose";
-
-// Schema for user hints tracking
-const userHintSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  questionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Question",
-    required: true,
-  },
-  usedHints: [{ type: Number }], // Array of hint indices
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
-
-userHintSchema.index({ userId: 1, questionId: 1 }, { unique: true });
-
-const UserHintModel =
-  mongoose.models.UserHint || mongoose.model("UserHint", userHintSchema);
 
 // GET - Fetch available hints for a question
 export async function GET(
@@ -48,7 +30,9 @@ export async function GET(
       );
     }
 
-    const question = await QuestionModel.findById(id);
+    const question = mongoose.isValidObjectId(id)
+      ? await QuestionModel.findById(id)
+      : null;
 
     if (!question) {
       return NextResponse.json(
@@ -143,17 +127,27 @@ export async function POST(
       );
     }
 
-    const body = await request.json();
-    const { hintIndex } = body;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { message: "Invalid request body" },
+        { status: HttpStatusCode.BadRequest }
+      );
+    }
+    const { hintIndex } = body ?? {};
 
-    if (typeof hintIndex !== "number" || hintIndex < 0) {
+    if (!Number.isInteger(hintIndex) || hintIndex < 0) {
       return NextResponse.json(
         { message: "Invalid hint index" },
         { status: HttpStatusCode.BadRequest }
       );
     }
 
-    const question = await QuestionModel.findById(id);
+    const question = mongoose.isValidObjectId(id)
+      ? await QuestionModel.findById(id)
+      : null;
 
     if (!question) {
       return NextResponse.json(
@@ -209,32 +203,32 @@ export async function POST(
 
     const requestedHint = hints[hintIndex];
 
-    // Get or create user hint record
-    let userHint = await UserHintModel.findOne({
-      userId: user._id,
-      questionId: id,
-    });
-
-    if (!userHint) {
-      userHint = new UserHintModel({
-        userId: user._id,
-        questionId: id,
-        usedHints: [],
-      });
+    // Atomically mark the hint as used. The filter only matches when the index
+    // isn't already present, so concurrent requests can't unlock (and charge) twice.
+    let unlocked = false;
+    try {
+      const result = await UserHintModel.updateOne(
+        { userId: user._id, questionId: id, usedHints: { $ne: hintIndex } },
+        {
+          $addToSet: { usedHints: hintIndex },
+          $set: { updatedAt: new Date() },
+          $setOnInsert: { createdAt: new Date() },
+        },
+        { upsert: true }
+      );
+      unlocked = result.modifiedCount > 0 || result.upsertedCount > 0;
+    } catch (err: any) {
+      // Upsert collided with the existing (userId, questionId) doc that already
+      // contains this index
+      if (err?.code !== 11000) throw err;
     }
 
-    // Check if hint already used
-    if (userHint.usedHints.includes(hintIndex)) {
+    if (!unlocked) {
       return NextResponse.json(
         { message: "You have already used this hint" },
         { status: HttpStatusCode.BadRequest }
       );
     }
-
-    // Add hint to used hints
-    userHint.usedHints.push(hintIndex);
-    userHint.updatedAt = new Date();
-    await userHint.save();
 
     let message = `Hint revealed: ${requestedHint.text}`;
     let pointsDeducted = 0;
@@ -246,13 +240,19 @@ export async function POST(
     ) {
       pointsDeducted = Number(requestedHint.pointsDeduction);
 
-      // Update user's total score ensuring it doesn't go below 0
-      const currentScore = user.totalScore || 0;
-      const newScore = Math.max(0, currentScore - pointsDeducted);
-
+      // Atomically deduct, ensuring the score doesn't go below 0 and without
+      // clobbering concurrent score changes
       const updateResult = await userSchema.findByIdAndUpdate(
         user._id,
-        { totalScore: newScore },
+        [
+          {
+            $set: {
+              totalScore: {
+                $max: [0, { $subtract: [{ $ifNull: ["$totalScore", 0] }, pointsDeducted] }],
+              },
+            },
+          },
+        ],
         { new: true }
       );
 

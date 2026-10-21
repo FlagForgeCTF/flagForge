@@ -525,7 +525,7 @@ const AssignBadgePage: React.FC = () => {
                                   height={48}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/api/placeholder/48/48';
+                                    e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                                   }}
                                 />
                               </div>
@@ -596,7 +596,7 @@ const AssignBadgePage: React.FC = () => {
                                       height={40}
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
-                                        e.currentTarget.src = '/api/placeholder/40/40';
+                                        e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                                       }}
                                     />
                                   ) : (
@@ -722,7 +722,7 @@ const AssignBadgePage: React.FC = () => {
                                   height={48}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/api/placeholder/48/48';
+                                    e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                                   }}
                                 />
                               </div>

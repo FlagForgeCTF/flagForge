@@ -199,7 +199,7 @@ const BadgeImageManager = ({
                     height={64}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = '/api/placeholder/64/64';
+                      e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                     }}
                   />
                 </button>
@@ -696,7 +696,7 @@ const BadgeTemplatesPage: React.FC = () => {
                               height={64}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                e.currentTarget.src = '/api/placeholder/64/64';
+                                e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                               }}
                             />
                           </div>
@@ -914,7 +914,7 @@ const BadgeTemplatesPage: React.FC = () => {
                               height={64}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                e.currentTarget.src = '/api/placeholder/64/64';
+                                e.currentTarget.onerror = null; e.currentTarget.src = '/flagforge-logo.png';
                               }}
                             />
                           </div>

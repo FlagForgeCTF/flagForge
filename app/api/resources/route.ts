@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
+    const page = Math.max(parseInt(searchParams.get("page") || "1", 10) || 1, 1);
     const category = searchParams.get("category");
     const search = searchParams.get("search");
 
@@ -45,9 +45,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
+      // Escape regex characters to prevent ReDoS/injection
+      const safeSearch = search.slice(0, 100).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
+        { title: { $regex: safeSearch, $options: "i" } },
+        { description: { $regex: safeSearch, $options: "i" } },
       ];
     }
 

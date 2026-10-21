@@ -723,6 +723,8 @@ export default function BlogPostClient({
                         alt={item.title}
                         fill
                         sizes="(min-width: 1024px) 300px, 90vw"
+                        // Notion thumbnails can be hosted anywhere, not just remotePatterns hosts
+                        unoptimized
                         className="object-cover"
                       />
                     )}

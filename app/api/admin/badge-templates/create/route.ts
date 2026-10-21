@@ -1,5 +1,6 @@
 // File: /api/admin/badge-templates/create/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
 import connect from "@/utils/db";
 import BadgeTemplate from "@/models/badgeTemplateSchema";
 
@@ -7,6 +8,9 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     await connect(); // connect to MongoDB
 
     const body = await request.json();

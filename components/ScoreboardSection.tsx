@@ -131,7 +131,7 @@ export default function ScoreboardSection() {
             )}
 
             <Link
-              href={`/event-scoreboards/${scoreboard._id}`}
+              href="/event-scoreboards"
               className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 transition-colors"
             >
               View Scoreboard

@@ -61,6 +61,10 @@ export const authOptions: AuthOptions = {
       // Generate JTI if missing
       if (!token.jti) {
         token.jti = randomUUID();
+      } else if (await TokenBlacklistService.isJtiRevoked(token.jti as string)) {
+        // Session was logged out. Throwing makes NextAuth clear the session
+        // cookies instead of re-issuing a fresh (un-blacklisted) cookie.
+        throw new Error("Session revoked");
       }
 
       // Determine which email to use

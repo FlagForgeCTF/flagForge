@@ -2,11 +2,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import connect from "@/utils/db";
 import Question from "@/models/qustionsSchema"; // Use the correct model
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
 export async function POST(req: NextRequest) {
   try {
+    // Requires login: this calls a paid LLM API
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { topic, difficulty } = await req.json();
-    if (!topic) {
+    if (typeof topic !== "string" || !topic.trim() || topic.length > 200) {
       return NextResponse.json({ error: "Missing topic" }, { status: 400 });
     }
 
@@ -22,7 +30,10 @@ export async function POST(req: NextRequest) {
         { description: regex },
         { tags: regex },
       ],
-    }).lean();
+    })
+      .select("title category description")
+      .limit(20)
+      .lean();
 
     // Build AI prompt
     const systemMessage = `
@@ -52,7 +63,6 @@ Candidates: ${JSON.stringify(
         title: c.title,
         category: c.category,
         description: c.description,
-        hints: c.hints?.map((h: { text: string }) => h.text),
       }))
     )}
 Select the most relevant challenge and return only JSON with fields: id, title, slug (or id).
@@ -99,13 +109,14 @@ Return only JSON.
     }
 
     // Pick the best challenge returned by AI, fallback to first candidate
+    if (!lesson || typeof lesson !== "object") lesson = { raw: aiText };
     const bestChallenge =
       lesson?.id || lesson?.challenge_id ? lesson : candidates[0] || null;
 
     if (bestChallenge) {
       const challengeId = bestChallenge.id || bestChallenge._id?.toString();
       const challengeTitle = bestChallenge.title || "Untitled Challenge";
-      const challengeLink = `https://flagforgectf.com/challenges/${challengeId}`;
+      const challengeLink = `https://flagforgectf.com/problems/${challengeId}`;
 
       // Inject challenge link into lesson
       lesson.challenge_meta = {

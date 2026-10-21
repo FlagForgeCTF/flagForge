@@ -10,6 +10,7 @@ type Msg = {
   text: string;
   pointsDeducted?: number;
   isHintRequest?: boolean;
+  ts?: number;
 };
 
 interface FloatingChatProps {
@@ -59,6 +60,7 @@ export default function FloatingChat({
       const greetingMsg: Msg = {
         id: "greeting",
         role: "bot",
+        ts: Date.now(),
         text: "Hi! I'm Hintsye 🐣 — your friendly challenge buddy. Ask me anything and I'll help you beat it, one step at a time!\n\n⚠️ Note: Asking for hints will deduct points from your score. Use wisely!",
       };
       setMessages([greetingMsg]);
@@ -71,12 +73,14 @@ export default function FloatingChat({
   }, [messages, loading]);
 
   async function sendMessage(msg: string) {
-    if (!msg.trim()) return;
+    // Guard against Enter while a reply is pending (would double-charge hints)
+    if (!msg.trim() || loading) return;
 
     const newUserMsg: Msg = {
       id: Date.now().toString(),
       role: "user",
       text: msg,
+      ts: Date.now(),
     };
     setMessages((prev) => [...prev, newUserMsg]);
     setInput("");
@@ -111,9 +115,10 @@ export default function FloatingChat({
       }
 
       const newBotMsg: Msg = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-bot`,
         role: "bot",
         text: data.reply,
+        ts: Date.now(),
         pointsDeducted: data.pointsDeducted || 0,
         isHintRequest: data.isHintRequest || false,
       };
@@ -122,8 +127,9 @@ export default function FloatingChat({
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now().toString(),
+          id: `${Date.now()}-err`,
           role: "bot",
+          ts: Date.now(),
           text: "I apologize, but I'm unable to process your request at the moment. Please try again.",
         },
       ]);
@@ -170,7 +176,7 @@ export default function FloatingChat({
 
       {/* Chat Popup */}
       {isOpen && (
-        <div className="w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div className="w-[calc(100vw-2.5rem)] sm:w-96 h-[min(600px,calc(100dvh-2.5rem))] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden border border-gray-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-4 flex justify-between items-center flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -275,7 +281,7 @@ export default function FloatingChat({
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">
                       {m.text}
                     </p>
-                    {m.pointsDeducted && m.pointsDeducted > 0 && (
+                    {(m.pointsDeducted ?? 0) > 0 && (
                       <div className="mt-2 pt-2 border-t border-yellow-300 flex items-center gap-1 text-xs font-semibold text-red-600">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -298,7 +304,7 @@ export default function FloatingChat({
                       m.role === "user" ? "text-right" : "text-left"
                     }`}
                   >
-                    {new Date().toLocaleTimeString([], {
+                    {new Date(m.ts ?? 0).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -352,6 +358,8 @@ export default function FloatingChat({
               <input
                 className="flex-1 bg-gray-100 px-4 py-3 rounded-lg text-gray-800 outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all placeholder-gray-500 text-sm"
                 placeholder="Type your message..."
+                aria-label="Message"
+                maxLength={2000}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -363,6 +371,7 @@ export default function FloatingChat({
               />
               <button
                 onClick={() => sendMessage(input)}
+                aria-label="Send message"
                 disabled={loading || !input.trim()}
                 className="bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed px-5 py-3 rounded-lg text-white font-medium transition-all shadow-sm hover:shadow-md flex items-center justify-center"
               >

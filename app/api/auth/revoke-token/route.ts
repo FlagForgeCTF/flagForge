@@ -17,10 +17,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Token required' }, { status: 400 });
     }
 
-    // Parse expiration date or use default (1 hour from now)
-    const expiration = expiresAt 
-      ? new Date(expiresAt) 
-      : new Date(Date.now() + 60 * 60 * 1000);
+    if (typeof token !== 'string' || token.length > 4096) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 400 });
+    }
+
+    // Parse expiration date or use default (1 hour from now). Capped at the
+    // session lifetime so callers can't park arbitrary long-lived keys in Redis.
+    const maxExpiry = Date.now() + 60 * 60 * 1000;
+    const requested = expiresAt ? new Date(expiresAt).getTime() : maxExpiry;
+    const expiration = new Date(
+      Number.isFinite(requested) ? Math.min(requested, maxExpiry) : maxExpiry
+    );
 
     // Add to blacklist with proper arguments
     await TokenBlacklistService.addToBlacklist(

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import { TokenBlacklistService } from '@/lib/tokenBlacklist';
 
 export async function tokenBlacklistMiddleware(request: NextRequest) {
@@ -24,8 +25,13 @@ export async function tokenBlacklistMiddleware(request: NextRequest) {
       return null;
     }
 
-    // Check if token is blacklisted
-    const isBlacklisted = await TokenBlacklistService.isBlacklisted(sessionToken);
+    // Check if token is blacklisted, either by raw cookie value or by its jti
+    // (which survives NextAuth re-issuing the cookie)
+    const decoded = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const isBlacklisted =
+      (await TokenBlacklistService.isBlacklisted(sessionToken)) ||
+      (typeof decoded?.jti === 'string' &&
+        (await TokenBlacklistService.isJtiRevoked(decoded.jti)));
     
     if (isBlacklisted) {
       console.log('🚫 Blacklisted token detected, clearing session');

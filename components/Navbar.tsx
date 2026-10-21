@@ -145,12 +145,12 @@ const Navbar: React.FC = () => {
   }, [session.status]);
 
   return (
-    <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 sticky top-0 z-50 w-full transition-all duration-500">
+    <header className="bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-gray-200 dark:border-white/10 sticky top-0 z-50 w-full">
       <nav className="flex justify-between items-center w-[92%] lg:w-[80%] mx-auto h-16 md:h-20 transition-all duration-300">
         <Link href="/" className="group outline-none">
-          <div className="flex items-center gap-3 transition-transform duration-300 group-hover:scale-[1.02] active:scale-95">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* logo */}
               <Image
                 src={logo}
                 alt="logo"
@@ -159,7 +159,7 @@ const Navbar: React.FC = () => {
                 className="relative h-8 w-8 md:h-10 md:w-10 object-contain"
               />
             </div>
-            <span className="text-lg md:text-xl font-black tracking-tighter text-gray-900 dark:text-white transition-colors">
+            <span className="text-lg md:text-xl font-bold tracking-tight text-gray-900 dark:text-white transition-colors">
               FlagForge
             </span>
           </div>
@@ -176,7 +176,7 @@ const Navbar: React.FC = () => {
                   key={href}
                   href={href}
                   tags={tags}
-                  style="px-4 py-2 text-xs md:text-sm font-bold uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-all"
+                  style="px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/5 rounded-md transition-colors"
                 />
               ))}
           </ul>
@@ -224,14 +224,14 @@ const Navbar: React.FC = () => {
                       <span className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-red-500 transition-colors">
                         {session.data?.user?.name ?? "Arena User"}
                       </span>
-                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tight">
+                      <span className="text-xs text-gray-500">
                         {standing}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="mt-3 w-56 p-2 rounded-2xl border-gray-100 dark:border-white/5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in duration-200" align="end">
-                  <DropdownMenuLabel className="px-3 py-2 text-xs font-black uppercase tracking-widest text-gray-400">Account Control</DropdownMenuLabel>
+                <DropdownMenuContent className="mt-2 w-56 p-1 rounded-lg border-gray-200 dark:border-white/10 shadow-md" align="end">
+                  <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-gray-500">Account</DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-gray-100 dark:bg-white/5 my-1" />
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-500 transition-all cursor-pointer">
@@ -312,7 +312,7 @@ const Navbar: React.FC = () => {
               <div className="flex flex-col h-full">
                 <div className="p-8 border-b border-gray-100 dark:border-white/5 flex items-center gap-3">
                   <Image src={logo} alt="logo" height={40} width={40} />
-                  <span className="text-2xl font-black text-gray-950 dark:text-white tracking-tighter">FlagForge</span>
+                  <span className="text-xl font-bold text-gray-950 dark:text-white tracking-tight">FlagForge</span>
                 </div>
 
                 <nav className="flex-1 p-6">
@@ -360,7 +360,7 @@ const Navbar: React.FC = () => {
                           className="group relative flex items-center justify-center w-full py-5 overflow-hidden rounded-2xl transition-all active:scale-[0.98]"
                         >
                           <div className="absolute inset-0 bg-red-600 transition-transform group-hover:scale-105" />
-                          <div className="relative flex items-center gap-3 font-black text-lg text-white">
+                          <div className="relative flex items-center gap-3 font-semibold text-lg text-white">
                             <LogIn className="w-6 h-6" />
                             <span>Sign in</span>
                           </div>
@@ -374,7 +374,7 @@ const Navbar: React.FC = () => {
                   <div className="p-8 bg-gray-50/50 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/5">
                     <div className="flex items-center gap-4 mb-8">
                       <div className="relative">
-                        <div className="absolute -inset-1 bg-red-500/20 blur-md rounded-2xl" />
+                        {/* avatar */}
                         <Image src={session.data?.user?.image ?? logo} alt="P" height={56} width={56} className="relative rounded-2xl border-2 border-white dark:border-gray-800 object-cover" />
                         <div className="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white dark:border-gray-950" />
                       </div>
@@ -385,7 +385,7 @@ const Navbar: React.FC = () => {
                         <p className="text-xs text-gray-500 truncate">
                           {session.data?.user?.email}
                         </p>
-                        <p className="text-[10px] font-bold uppercase tracking-tight text-gray-400 dark:text-gray-500">
+                        <p className="text-xs text-gray-500">
                           {standing}
                         </p>
                       </div>
@@ -420,7 +420,7 @@ const Navbar: React.FC = () => {
 
                       <button
                         onClick={handleMobileSignOut}
-                        className="flex items-center justify-center gap-3 w-full py-4 text-sm font-black uppercase tracking-widest text-red-500 bg-red-50 dark:bg-red-500/10 border-2 border-red-500/20 rounded-2xl hover:bg-red-500 hover:text-white transition-all group"
+                        className="flex items-center justify-center gap-3 w-full py-3 text-sm font-medium text-red-600 border border-red-200 dark:border-red-500/30 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors group"
                       >
                         <LogOut className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                         Terminate

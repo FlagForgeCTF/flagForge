@@ -66,6 +66,7 @@ const LeaderboardPage = () => {
         }));
 
       setLeaderboard(sortedData);
+      setError("");
       setLastUpdated(new Date());
       // Clear image errors when data refreshes
       setImageErrors(new Set());
@@ -77,15 +78,11 @@ const LeaderboardPage = () => {
   }, []);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
     // Fetch leaderboard for all users (authenticated and unauthenticated)
     fetchLeaderboard();
-    intervalId = setInterval(fetchLeaderboard, 10000);
+    const intervalId = setInterval(fetchLeaderboard, 10000);
 
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [fetchLeaderboard]);
 
   const getLevel = useCallback((score: number): string => {
@@ -204,7 +201,9 @@ const LeaderboardPage = () => {
 
   // Note: Removed authentication check to allow public browsing
 
-  if (error) {
+  // Only replace the page with an error if there's nothing to show; a failed
+  // background refresh keeps the last good data on screen
+  if (error && leaderboard.length === 0) {
     return (
       <div className="flex flex-col justify-center items-center mt-[20vh] dark:bg-gray-900 min-h-screen px-4 transition-colors duration-300">
         <h1 className="text-xl sm:text-2xl text-center text-red-500 dark:text-red-500 font-bold mb-4 transition-colors duration-300">

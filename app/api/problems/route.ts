@@ -190,11 +190,12 @@ export async function POST(req: NextRequest) {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const qpage = parseInt(searchParams.get("page") ?? "1", 10);
-  const page: number = qpage;
+  const page: number = Number.isFinite(qpage) && qpage > 0 ? qpage : 1;
 
-  // Allow custom limit from query params, default to 8 for normal pagination
-  const requestedLimit = searchParams.get("limit");
-  const limit = requestedLimit ? parseInt(requestedLimit, 10) : 8;
+  // Allow custom limit from query params, default to 8 for normal pagination.
+  // Clamped to 1..1000 (the "all challenges" views request up to 1000).
+  const requestedLimit = parseInt(searchParams.get("limit") ?? "8", 10);
+  const limit = Math.min(Math.max(Number.isFinite(requestedLimit) ? requestedLimit : 8, 1), 1000);
 
   // Get category filter from query params
   const category = searchParams.get("category");
@@ -216,16 +217,14 @@ export async function GET(request: NextRequest) {
       baseQuery = { category: category };
     }
 
-    // Build the query with category filter
-    let query = QuestionModel.find(baseQuery).select("-flag");
+    // Build the query with category filter. Hint text is only served via
+    // /api/problems/[id]/hints once unlocked, so never include it here.
+    let query = QuestionModel.find(baseQuery).select("-flag -hints.text");
 
     // Add sorting - newest first by default
     query = query.sort({ createdAt: -1 });
 
-    // Apply pagination only if limit is reasonable (not trying to get all)
-    if (limit <= 1000) {
-      query = query.skip(startIndex).limit(limit);
-    }
+    query = query.skip(startIndex).limit(limit);
 
     const questions = await query.exec();
 
@@ -298,6 +297,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    console.error("Error fetching problems:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: HttpStatusCode.InternalServerError }
+    );
   }
 }

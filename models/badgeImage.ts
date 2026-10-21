@@ -47,7 +47,6 @@ const badgeImageSchema = new mongoose.Schema<BadgeImageDocument>({
 
 // Create indexes for better query performance
 badgeImageSchema.index({ category: 1, uploadedAt: -1 });
-badgeImageSchema.index({ filename: 1 }, { unique: true });
 
 // Prevent re-compilation during development
 const BadgeImageModel = mongoose.models.BadgeImage || mongoose.model<BadgeImageDocument>('BadgeImage', badgeImageSchema);

@@ -17,8 +17,6 @@ import {
   Trophy,
 } from "lucide-react";
 
-export const runtime = "edge";
-
 // Fixed interface definitions
 interface Hint {
   id?: number;
@@ -70,6 +68,7 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
   const unwrappedParams = React.use(params);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { data: session, status: sessionStatus } = useSession();
   const [problems, setProblems] = useState<Questions>(initialQuestion);
@@ -98,6 +97,9 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
   const lastSubmittedFlag = useRef<string>("");
   const submissionInProgress = useRef<boolean>(false);
   const abortController = useRef<AbortController | null>(null);
+  // Post-solve timers (confetti, redirect); cleared on unmount so leaving the
+  // page doesn't yank the user back to /problems later
+  const solveTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const isPracticeMode = isDone && practiceMode;
   const MIN_SUBMISSION_INTERVAL = 1000;
@@ -161,7 +163,11 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
       }
 
       if (!response.ok) {
-        throw new Error("Failed to fetch problems");
+        throw new Error(
+          response.status === 404
+            ? "This challenge doesn't exist or has been removed."
+            : "Failed to load this challenge. Please try again."
+        );
       }
 
       const data = await response.json();
@@ -200,6 +206,9 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching problem:", error);
+      setLoadError(
+        error instanceof Error ? error.message : "Failed to load this challenge."
+      );
       setLoading(false);
     }
   };
@@ -412,10 +421,12 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
           if (!isPracticeMode) {
             setIsCorrect(true);
             setShowConfetti(true);
-            setTimeout(() => setShowConfetti(false), 3000);
             setFlag("");
-            setTimeout(() => setIsDone(true), 5000);
-            setTimeout(() => router.push("/problems"), 8000);
+            solveTimers.current.push(
+              setTimeout(() => setShowConfetti(false), 3000),
+              setTimeout(() => setIsDone(true), 5000),
+              setTimeout(() => router.push("/problems"), 8000)
+            );
           } else {
             setFlag("");
             lastSubmittedFlag.current = "";
@@ -483,6 +494,7 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
   useEffect(() => {
     return () => {
       if (abortController.current) abortController.current.abort();
+      solveTimers.current.forEach(clearTimeout);
     };
   }, []);
 
@@ -512,6 +524,25 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
     submitting || isExpired || (!isPracticeMode && isCorrect);
 
   if (loading || sessionStatus === "loading") return <Loading />;
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-gray-950 text-black dark:text-white">
+        <div className="max-w-md w-full text-center rounded-2xl border border-red-200 dark:border-red-800/50 bg-red-50/60 dark:bg-red-900/10 p-8">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-3">
+            Challenge unavailable
+          </h1>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">{loadError}</p>
+          <Link
+            href="/problems"
+            className="inline-flex items-center gap-2 rounded-full bg-red-600 hover:bg-red-700 px-5 py-2.5 text-white font-medium transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to problems
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Allow viewing the problem without authentication
   // Authentication will be required only when submitting flags
@@ -962,8 +993,7 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
                                     <span className="font-medium text-rose-800 dark:text-rose-200">
                                       Hint {displayHintIndex}
                                     </span>
-                                    {hint.pointsDeduction &&
-                                      Number(hint.pointsDeduction) > 0 && (
+                                    {Number(hint.pointsDeduction) > 0 && (
                                         <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-2 py-1 rounded-full text-xs font-medium">
                                           -{hint.pointsDeduction} pts
                                         </div>
@@ -1037,6 +1067,7 @@ const Page = ({ params }: { params: Promise<PageParams> }) => {
                       : "border-gray-300 dark:border-gray-700"
                     }`}
                   placeholder="Flag here!"
+                  aria-label="Flag"
                   value={flag}
                   onChange={handleFlagChange}
                   onKeyPress={handleKeyPress}

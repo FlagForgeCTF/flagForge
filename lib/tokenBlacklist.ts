@@ -73,6 +73,26 @@ export class TokenBlacklistService {
     }
   }
 
+  /**
+   * Revoke a session by its JWT ID. NextAuth re-encodes the session cookie on
+   * every refresh, so the raw cookie value changes but the jti stays stable.
+   */
+  static async revokeJti(jti: string, expiresAt: Date, userId?: string): Promise<void> {
+    // Another copy of this session may have been refreshed after `expiresAt`
+    // was issued, so keep the revocation for at least one full session lifetime
+    // (session.maxAge in authOptions is 1 hour).
+    const minExpiry = new Date(Date.now() + 60 * 60 * 1000);
+    await TokenBlacklistService.addToBlacklist(
+      `jti:${jti}`,
+      expiresAt > minExpiry ? expiresAt : minExpiry,
+      userId
+    );
+  }
+
+  static async isJtiRevoked(jti: string): Promise<boolean> {
+    return TokenBlacklistService.isBlacklisted(`jti:${jti}`);
+  }
+
   static async removeFromBlacklist(sessionToken: string): Promise<void> {
     try {
       await redis.del(`blacklist:${sessionToken}`);

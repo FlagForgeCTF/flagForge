@@ -7,31 +7,17 @@ import { authOptions } from "@/lib/authOptions";
 import userSchema from "@/models/userSchema";
 import UserQuestionModel from "@/models/userQuestionSchema";
 import mongoose from "mongoose";
+import UserHintModel from "@/models/userHintSchema";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Schema for user hints tracking (same as in hints route)
-const userHintSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  questionId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Question",
-    required: true,
-  },
-  usedHints: [{ type: Number }], // Array of hint indices
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
-
-userHintSchema.index({ userId: 1, questionId: 1 }, { unique: true });
-
-const UserHintModel =
-  mongoose.models.UserHint || mongoose.model("UserHint", userHintSchema);
 
 // Helper functions to reduce duplication
 async function findQuestionById(id: string) {
-  const question = await QuestionModel.findById(id);
+  const question = mongoose.isValidObjectId(id)
+    ? await QuestionModel.findById(id)
+    : null;
   if (!question) {
     return {
       error: NextResponse.json(
@@ -177,8 +163,13 @@ export async function POST(
     }
 
     // Get the submitted flag from request body
-    const body = await request.json();
-    const { flag: submittedFlag } = body;
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return createErrorResponse("Invalid request body", HttpStatusCode.BadRequest);
+    }
+    const { flag: submittedFlag } = body ?? {};
     const isPractice = request.nextUrl.searchParams.get("practice") === "true";
 
     if (!submittedFlag || typeof submittedFlag !== "string") {
@@ -234,7 +225,7 @@ export async function POST(
       // Flag is correct - save the solution
       try {
         // Calculate final points considering hint penalties
-        let finalPoints = Number(question.points) || 0;
+        const finalPoints = Number(question.points) || 0;
 
         // Get used hints to calculate penalty
         const usedHints = await getUserHints(user._id, id);
@@ -259,7 +250,18 @@ export async function POST(
           pointsEarned: finalPoints,
         });
 
-        await newSolution.save();
+        try {
+          await newSolution.save();
+        } catch (dupError: any) {
+          // Unique index on (userId, questionId): a parallel request already recorded this solve
+          if (dupError?.code === 11000) {
+            return NextResponse.json(
+              { message: "You have already solved this challenge!" },
+              { status: HttpStatusCode.Ok }
+            );
+          }
+          throw dupError;
+        }
 
         const updateResult = await userSchema.findByIdAndUpdate(
           user._id,
@@ -335,7 +337,7 @@ export async function DELETE(
     
     // Also delete associated UserQuestions and UserHints
     await UserQuestionModel.deleteMany({ questionId: id });
-    await mongoose.models.UserHint?.deleteMany({ questionId: id });
+    await UserHintModel.deleteMany({ questionId: id });
 
     return NextResponse.json(
       { message: "Challenge deleted successfully" },

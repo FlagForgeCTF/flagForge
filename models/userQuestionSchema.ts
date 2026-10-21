@@ -18,6 +18,9 @@ const userQuestionSchema = new Schema<UserQuestion>(
     { timestamps: true }
 );
 
+// One solve per user per question; makes concurrent flag submissions safe
+userQuestionSchema.index({ userId: 1, questionId: 1 }, { unique: true });
+
 const UserQuestionModel =
     mongoose.models.UserQuestion || model("UserQuestion", userQuestionSchema);
 

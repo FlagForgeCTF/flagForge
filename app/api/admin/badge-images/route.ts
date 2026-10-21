@@ -1,5 +1,6 @@
 // api/badge-images/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/requireAdmin";
 import connect from "@/utils/db";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
@@ -24,6 +25,9 @@ export async function GET(
   request: NextRequest,
 ): Promise<NextResponse<BadgeImageListResponse | BadgeImageErrorResponse>> {
   try {
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     await connect();
 
     // Get query parameters for filtering
@@ -65,6 +69,9 @@ export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<BadgeImageUploadResponse | BadgeImageErrorResponse>> {
   try {
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     const formData = await request.formData();
     const file = formData.get("badge-image") as File | null;
     const name = formData.get("name") as string | null;
@@ -174,6 +181,9 @@ export async function DELETE(
   request: NextRequest,
 ): Promise<NextResponse<BadgeImageDeleteResponse | BadgeImageErrorResponse>> {
   try {
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     const { searchParams } = new URL(request.url);
     const imageId = searchParams.get("id");
 
