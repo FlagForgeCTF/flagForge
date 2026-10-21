@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       .map((userQuestion) => ({
         ...userQuestion.questionId.toObject(),
         completedAt: userQuestion.createdAt, // When they completed it
-        pointsEarned: userQuestion.questionId.points, // Points they earned
+        pointsEarned: userQuestion.awarded ?? userQuestion.questionId.points, // Points currently credited
       }));
 
     // Calculate pagination info

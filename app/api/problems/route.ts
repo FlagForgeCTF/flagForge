@@ -11,6 +11,7 @@ import { sendDiscordNotification } from "@/utils/discordNotifier";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
+import { challengeValue } from "@/lib/dynamicScoring";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -275,6 +276,7 @@ export async function GET(request: NextRequest) {
       }
 
       questionObj.solveCount = solveCountMap[questionObj._id.toString()] || 0;
+      questionObj.points = challengeValue(questionObj.points, questionObj.solveCount);
 
       return questionObj;
     });

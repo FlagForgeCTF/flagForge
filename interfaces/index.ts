@@ -68,7 +68,8 @@ export interface UserQuestion {
   _id?: string;
   solvedAt?: Date;
   pointsEarned?: number;
-  hintsUsed?: string[]; 
+  awarded?: number;
+  hintsUsed?: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }

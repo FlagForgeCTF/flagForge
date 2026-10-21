@@ -32,6 +32,7 @@ import Cipher from "../../../public/badges/0x5.png";
 import Forger from "../../../public/badges/0x6.png";
 import Conqueror from "../../../public/badges/0x7.png";
 import Flagforge from "../../../public/flagforge.gif";
+import ProfileAnalytics, { SolveStats } from "@/components/ProfileAnalytics";
 
 // Types
 interface CustomBadge {
@@ -57,6 +58,7 @@ interface ProfileData {
   streak: number;
   createdAt: string;
   customBadges?: CustomBadge[];
+  stats?: SolveStats;
 }
 
 interface CompletedProblem {
@@ -823,6 +825,8 @@ const ProfilePage = () => {
           {HeroStats()}
 
           {CustomBadgeDisplay()}
+
+          <ProfileAnalytics stats={profileData?.stats} />
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import UserQuestionModel from "@/models/userQuestionSchema";
 import connect from "@/utils/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { getSolveStats } from "@/lib/solveStats";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -111,10 +112,7 @@ export async function GET(req: Request) {
       return badges;
     };
 
-    // Calculate streak (simplified - based on recent activity)
-    const getStreak = (completed: number): number => {
-      return Math.min(completed, 30); // Cap at 30 for simplicity
-    };
+    const stats = await getSolveStats(user._id);
 
     // Use session image as fallback if database image is invalid
     const getUserImage = () => {
@@ -146,7 +144,8 @@ export async function GET(req: Request) {
       completedQuestions,
       roomsCompleted: completedQuestions,
       badges: getBadges(completedQuestions),
-      streak: getStreak(completedQuestions),
+      streak: stats.currentStreak,
+      stats,
       createdAt: user.createdAt,
       customBadges: user.customBadges || [],
       debug: {

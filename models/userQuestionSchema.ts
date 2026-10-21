@@ -14,6 +14,10 @@ const userQuestionSchema = new Schema<UserQuestion>(
             ref: "Question",
             required: true,
         },
+        // Points currently credited to totalScore for this solve (kept in sync by lib/dynamicScoring)
+        awarded: {
+            type: Number,
+        },
     },
     { timestamps: true }
 );

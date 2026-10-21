@@ -8,9 +8,32 @@ import userSchema from "@/models/userSchema";
 import UserQuestionModel from "@/models/userQuestionSchema";
 import mongoose from "mongoose";
 import UserHintModel from "@/models/userHintSchema";
+import { redis } from "@/lib/tokenBlacklist";
+import { challengeValue, syncChallengeScores } from "@/lib/dynamicScoring";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+const FLAG_ATTEMPTS_PER_WINDOW = 10;
+const FLAG_WINDOW_SECONDS = 60;
+
+// Fixed-window counter per user per challenge; returns false once the limit is exceeded.
+async function allowFlagAttempt(userId: string, questionId: string) {
+  const key = `flagrl:${userId}:${questionId}`;
+  try {
+    const attempts = await redis.incr(key);
+    if (attempts === 1) await redis.expire(key, FLAG_WINDOW_SECONDS);
+    if (attempts > FLAG_ATTEMPTS_PER_WINDOW) {
+      console.warn(`Flag rate limit hit: user=${userId} question=${questionId} attempts=${attempts}`);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    // Fail open so a Redis outage doesn't block all solving (same policy as the token blacklist).
+    console.error("Flag rate limiter unavailable:", error);
+    return true;
+  }
+}
 
 
 // Helper functions to reduce duplication
@@ -125,6 +148,7 @@ export async function GET(
     }
 
     const solveCount = await UserQuestionModel.countDocuments({ questionId: id });
+    questionData.points = challengeValue(question.points, solveCount);
 
     return NextResponse.json({
       question: questionData,
@@ -195,6 +219,13 @@ export async function POST(
     );
     if (userError) return userError;
 
+    if (!(await allowFlagAttempt(String(user._id), id))) {
+      return NextResponse.json(
+        { message: `Too many attempts. Wait ${FLAG_WINDOW_SECONDS} seconds and try again.` },
+        { status: HttpStatusCode.TooManyRequests, headers: { "Retry-After": String(FLAG_WINDOW_SECONDS) } }
+      );
+    }
+
     const trimmedSubmittedFlag = submittedFlag.trim();
     const correctFlag = question.flag.trim();
 
@@ -224,30 +255,12 @@ export async function POST(
     if (trimmedSubmittedFlag === correctFlag) {
       // Flag is correct - save the solution
       try {
-        // Calculate final points considering hint penalties
-        const finalPoints = Number(question.points) || 0;
-
-        // Get used hints to calculate penalty
-        const usedHints = await getUserHints(user._id, id);
-        if (usedHints.length > 0) {
-          let totalPenalty = 0;
-          const hints = question.hints || [];
-
-          usedHints.forEach((hintIndex: number) => {
-            if (hintIndex < hints.length && hints[hintIndex].pointsDeduction) {
-              totalPenalty += Number(hints[hintIndex].pointsDeduction) || 0;
-            }
-          });
-          console.log(
-            `User ${user._id} solved with ${totalPenalty} points already deducted from hints`
-          );
-        }
-
+        // Hint penalties were already deducted from totalScore when each hint was revealed.
+        // Start at 0 credited points; syncChallengeScores credits this solve and re-values earlier ones.
         const newSolution = new UserQuestionModel({
           userId: user._id,
           questionId: id,
-          solvedAt: new Date(),
-          pointsEarned: finalPoints,
+          awarded: 0,
         });
 
         try {
@@ -263,22 +276,9 @@ export async function POST(
           throw dupError;
         }
 
-        const updateResult = await userSchema.findByIdAndUpdate(
-          user._id,
-          { $inc: { totalScore: finalPoints } },
-          {
-            new: true,
-            upsert: false,
-          }
-        );
-
-        if (!updateResult) {
-          console.error("Failed to update user score");
-        } else {
-          console.log(
-            `User score updated. Added: ${finalPoints}, New total: ${updateResult.totalScore}`
-          );
-        }
+        await syncChallengeScores(question);
+        const credited = await UserQuestionModel.findById(newSolution._id).select("awarded").lean<{ awarded?: number }>();
+        const finalPoints = credited?.awarded ?? 0;
 
         return NextResponse.json(
           {
@@ -373,6 +373,10 @@ export async function PUT(
       { $set: updateData },
       { new: true, runValidators: true }
     );
+
+    if (updatedQuestion && updateData.points !== undefined) {
+      await syncChallengeScores(updatedQuestion);
+    }
 
     return NextResponse.json(
       { message: "Challenge updated successfully", question: updatedQuestion },

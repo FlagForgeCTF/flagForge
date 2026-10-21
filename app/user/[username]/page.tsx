@@ -25,6 +25,7 @@ import Hacker from '../../../public/badges/0x4.png';
 import Cipher from '../../../public/badges/0x5.png';
 import Forger from '../../../public/badges/0x6.png';
 import Conqueror from '../../../public/badges/0x7.png';
+import ProfileAnalytics, { SolveStats } from '@/components/ProfileAnalytics';
 
 interface PublicProfileData {
   name: string;
@@ -39,6 +40,7 @@ interface PublicProfileData {
   createdAt: string;
   memberSince: number;
   completedProblems?: any[];
+  stats?: SolveStats;
 }
 
 // Badge configuration matching the private profile
@@ -404,6 +406,12 @@ const PublicUserPage = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="relative z-10 pt-12">
+          <div className="w-[92%] lg:w-[80%] mx-auto">
+            <ProfileAnalytics stats={profileData.stats} />
           </div>
         </section>
 

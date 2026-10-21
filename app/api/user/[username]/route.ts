@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connect from "@/utils/db";
 import UserSchema from "@/models/userSchema";
 import UserQuestionModel from "@/models/userQuestionSchema";
+import { getSolveStats } from "@/lib/solveStats";
 
 export const runtime = "nodejs";
 
@@ -81,6 +82,7 @@ export async function GET(
       customBadges: user.customBadges || [],
       createdAt: user.createdAt,
       memberSince: new Date(user.createdAt).getFullYear(),
+      stats: await getSolveStats(user._id),
     };
 
     return NextResponse.json({
